@@ -25,6 +25,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.updateProcessor = updateProcessor;
     }
 
+    /**
+     * Метод для регистрации (внедрения) бота в класс для распределения сообщений.
+     * Note: регистрирует бота после создания бина этого компонента.
+     */
     @PostConstruct
     public void init() {
         updateProcessor.registerBot(this);
@@ -32,19 +36,26 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
+        // настраиваем имя бота
         return config.getBotName();
     }
 
     @Override
     public String getBotToken() {
+        // настраиваем токен бота
         return config.getBotToken();
     }
 
     @Override
     public void onUpdateReceived(Update update) {
+        // обрабатываем полученное обновление
         updateProcessor.processUpdate(update);
     }
 
+    /**
+     * Метод для выполнения отправки сообщения ботом в чат пользователя.
+     * @param message - сообщение, отправляемое ботом в чат.
+     */
     public void executeMessage(SendMessage message) {
         try {
             execute(message);
