@@ -9,15 +9,25 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.emelkrist.dispatcher.config.BotConfig;
 
+import javax.annotation.PostConstruct;
+
 @Component
 @Slf4j
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final BotConfig config;
 
+    private final UpdateProcessor updateProcessor;
+
     @Autowired
-    public TelegramBot(BotConfig config) {
+    public TelegramBot(BotConfig config, UpdateProcessor updateProcessor) {
         this.config = config;
+        this.updateProcessor = updateProcessor;
+    }
+
+    @PostConstruct
+    public void init() {
+        updateProcessor.registerBot(this);
     }
 
     @Override
@@ -32,15 +42,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        var originalMessage = update.getMessage();
-
-        SendMessage message = new SendMessage();
-        message.setChatId(update.getMessage().getFrom().getId());
-        message.setText("Hi from bot!");
-        executeMessage(message);
+        updateProcessor.processUpdate(update);
     }
 
-    private void executeMessage(SendMessage message) {
+    public void executeMessage(SendMessage message) {
         try {
             execute(message);
         } catch (TelegramApiException e) {
