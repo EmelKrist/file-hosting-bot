@@ -55,7 +55,7 @@ public class UpdateProcessor {
     }
 
     /**
-     *
+     * Метод для распределения сообщений по типу
      * @param update - обновление чата.
      */
     private void distributeMessagesByType(Update update) {
@@ -97,7 +97,7 @@ public class UpdateProcessor {
      * Метод для установки представления (отправки сообщения от бота в чат).
      * @param message - отправляемое сообщение.
      */
-    private void setView(SendMessage message) {
+    public void setView(SendMessage message) {
         telegramBot.executeMessage(message);
     }
 
