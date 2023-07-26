@@ -1,5 +1,14 @@
+# Server configuration
+server.port=8090
+
 # RabbitMQ configuration
 spring.rabbitmq.host=
 spring.rabbitmq.port=
 spring.rabbitmq.username=
 spring.rabbitmq.password=
+
+# Database configuration
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.jpa.generate-ddl=true
