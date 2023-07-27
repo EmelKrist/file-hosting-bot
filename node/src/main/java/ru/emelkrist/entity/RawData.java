@@ -21,7 +21,7 @@ public class RawData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
+    // колонка, которая хранит объект update в формате json (в postgresql тип называется jsonb)
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private Update event;

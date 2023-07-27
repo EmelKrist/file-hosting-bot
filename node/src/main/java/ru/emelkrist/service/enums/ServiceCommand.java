@@ -1,5 +1,8 @@
 package ru.emelkrist.service.enums;
 
+/**
+ * Перечисление для тектовых команд чат бота
+ */
 public enum ServiceCommand {
     HELP("/help"),
     REGISTRATION("/registration"),
