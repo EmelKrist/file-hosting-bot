@@ -7,10 +7,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.emelkrist.dao.AppUserDAO;
 import ru.emelkrist.dao.RawDataDAO;
+import ru.emelkrist.entity.AppDocument;
 import ru.emelkrist.entity.AppUser;
 import ru.emelkrist.entity.RawData;
+import ru.emelkrist.exceptions.UploadFileException;
+import ru.emelkrist.service.FileService;
 import ru.emelkrist.service.MainService;
 import ru.emelkrist.service.ProducerService;
+import ru.emelkrist.service.enums.ServiceCommand;
 
 import static ru.emelkrist.entity.enums.UserState.BASIC_STATE;
 import static ru.emelkrist.entity.enums.UserState.WAIT_TO_EMAIL_STATE;
@@ -23,11 +27,13 @@ public class MainServiceImpl implements MainService {
     private final RawDataDAO rawDataDAO;
     private final AppUserDAO appUserDAO;
     private final ProducerService producerService;
+    private final FileService fileService;
 
-    public MainServiceImpl(RawDataDAO rawDataDAO, AppUserDAO appUserDAO, ProducerService producerService) {
+    public MainServiceImpl(RawDataDAO rawDataDAO, AppUserDAO appUserDAO, ProducerService producerService, FileService fileService) {
         this.rawDataDAO = rawDataDAO;
         this.appUserDAO = appUserDAO;
         this.producerService = producerService;
+        this.fileService = fileService;
     }
 
     @Override
@@ -38,7 +44,8 @@ public class MainServiceImpl implements MainService {
         var text = update.getMessage().getText();
         var output = "";
 
-        if (CANCEL.equals(text)) {
+        var serviceCommand = ServiceCommand.fromValue(text);
+        if (CANCEL.equals(serviceCommand)) {
             output = cancelProcess(appUser);
         } else if (BASIC_STATE.equals(userState)) {
             output = processUserCommand(appUser, text);
@@ -63,7 +70,7 @@ public class MainServiceImpl implements MainService {
             return;
         }
         // TODO добавить сохранение документа
-        var answer = "Документ успешно загружен! Ссылка для скачивания: http://test.ru/get-doc/777";
+        var answer = "Фото успешно загружено! Ссылка для скачивания: http://test.ru/get-photo/777";
         sendAnswer(answer, chatId);
     }
 
@@ -98,9 +105,18 @@ public class MainServiceImpl implements MainService {
         if (isNotAllowToSendContent(chatId, appUser)) {
             return;
         }
-        // TODO добавить сохранение фото
-        var answer = "Фото успешно загружено! Ссылка для скачивания: http://test.ru/get-photo/777";
-        sendAnswer(answer, chatId);
+
+        try{
+            AppDocument doc = fileService.processDoc(update.getMessage());
+            // TODO Добавить генерацию ссылки для скачивания документа
+            var answer = "Документ успешно загружен! Ссылка для скачивания: http://test.ru/get-doc/777";
+            sendAnswer(answer, chatId);
+        } catch (UploadFileException e){
+            log.error(e.toString());
+            String error = "К сожалению, загрузка файла не удалась. Повторите попытку позже.";
+            sendAnswer(error, chatId);
+        }
+
     }
 
     /**

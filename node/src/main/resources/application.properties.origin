@@ -12,3 +12,8 @@ spring.datasource.url=
 spring.datasource.username=
 spring.datasource.password=
 spring.jpa.generate-ddl=true
+
+# Telegram configuration
+token=
+service.file_info.uri=https://api.telegram.org/bot{token}/getFile?file_id={fileId}
+service.file_storage.uri=https://api.telegram.org/file/bot{token}/{filePath}
