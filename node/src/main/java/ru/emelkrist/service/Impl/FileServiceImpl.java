@@ -16,6 +16,8 @@ import ru.emelkrist.entity.AppPhoto;
 import ru.emelkrist.entity.BinaryContent;
 import ru.emelkrist.exceptions.UploadFileException;
 import ru.emelkrist.service.FileService;
+import ru.emelkrist.service.enums.LinkType;
+import ru.emelkrist.utils.CryptoTool;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,14 +33,18 @@ public class FileServiceImpl implements FileService {
     private String fileInfoUri;
     @Value("${service.file_storage.uri}")
     private String fileStorageUri;
+    @Value("${link.address}")
+    private String linkAddress;
     private final AppDocumentDAO appDocumentDAO;
     private final BinaryContentDAO binaryContentDAO;
     private final AppPhotoDAO appPhotoDAO;
+    private final CryptoTool cryptoTool;
 
-    public FileServiceImpl(AppDocumentDAO appDocumentDAO, BinaryContentDAO binaryContentDAO, AppPhotoDAO appPhotoDAO) {
+    public FileServiceImpl(AppDocumentDAO appDocumentDAO, BinaryContentDAO binaryContentDAO, AppPhotoDAO appPhotoDAO, CryptoTool cryptoTool) {
         this.appDocumentDAO = appDocumentDAO;
         this.binaryContentDAO = binaryContentDAO;
         this.appPhotoDAO = appPhotoDAO;
+        this.cryptoTool = cryptoTool;
     }
 
     @Override
@@ -57,8 +63,9 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public AppPhoto processPhoto(Message telegramMessage) {
-        // TODO Обрабатываем только одно фото
-        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(0);
+        // исправлена проблема скачивания маленького некачественного фото (нужно брать посленднее по индексу фото)
+        var lastIndexPhoto = telegramMessage.getPhoto().size() - 1;
+        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(lastIndexPhoto);
         String fileId = telegramPhoto.getFileId();
         ResponseEntity<String> response = getFilePath(fileId);
         if (response.getStatusCode() == HttpStatus.OK){
@@ -68,6 +75,12 @@ public class FileServiceImpl implements FileService {
         } else {
             throw new UploadFileException("Bad response from telegram service: " + response);
         }
+    }
+
+    @Override
+    public String generateLink(Long docId, LinkType linkType) {
+        var hash = cryptoTool.hashOf(docId);
+        return "http://" + linkAddress + "/" + linkType + "?id=" + hash;
     }
 
     private AppPhoto buildTransientAppPhoto(PhotoSize telegramPhoto, BinaryContent persistentBinaryContent) {

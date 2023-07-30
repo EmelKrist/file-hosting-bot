@@ -7,3 +7,6 @@ spring.datasource.username=
 spring.datasource.password=
 spring.jpa.generate-ddl=true
 
+# Crypto configuration
+salt=
+

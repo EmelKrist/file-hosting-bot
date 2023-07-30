@@ -10,6 +10,7 @@ import ru.emelkrist.entity.AppDocument;
 import ru.emelkrist.entity.AppPhoto;
 import ru.emelkrist.entity.BinaryContent;
 import ru.emelkrist.service.FileService;
+import ru.emelkrist.utils.CryptoTool;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,23 +21,25 @@ import java.util.Optional;
 public class FileServiceImpl implements FileService {
     private final AppPhotoDAO appPhotoDAO;
     private  final AppDocumentDAO appDocumentDAO;
+    private final CryptoTool cryptoTool;
 
-    public FileServiceImpl(AppPhotoDAO appPhotoDAO, AppDocumentDAO appDocumentDAO) {
+    public FileServiceImpl(AppPhotoDAO appPhotoDAO, AppDocumentDAO appDocumentDAO, CryptoTool cryptoTool) {
         this.appPhotoDAO = appPhotoDAO;
         this.appDocumentDAO = appDocumentDAO;
+        this.cryptoTool = cryptoTool;
     }
 
     @Override
     public Optional<AppDocument> getDocument(String docId) {
-        // TODO Добавить дешифровку хеш-строки
-        var id = Long.parseLong(docId);
+        var id = cryptoTool.idOf(docId);
+        if (id == null) return Optional.empty();
         return appDocumentDAO.findById(id);
     }
 
     @Override
     public Optional<AppPhoto> getPhoto(String photoId) {
-        // TODO Добавить дешифровку хеш-строки
-        var id = Long.parseLong(photoId);
+        var id = cryptoTool.idOf(photoId);
+        if (id == null) return Optional.empty();
         return appPhotoDAO.findById(id);
     }
 

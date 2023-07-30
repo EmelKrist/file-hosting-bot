@@ -15,6 +15,7 @@ import ru.emelkrist.exceptions.UploadFileException;
 import ru.emelkrist.service.FileService;
 import ru.emelkrist.service.MainService;
 import ru.emelkrist.service.ProducerService;
+import ru.emelkrist.service.enums.LinkType;
 import ru.emelkrist.service.enums.ServiceCommand;
 
 import static ru.emelkrist.entity.enums.UserState.BASIC_STATE;
@@ -73,8 +74,8 @@ public class MainServiceImpl implements MainService {
 
         try {
             AppPhoto appPhoto = fileService.processPhoto(update.getMessage());
-            // TODO Добавить генерацию ссылки для скачивания фото
-            var answer = "Фото успешно загружено! Ссылка для скачивания: http://test.ru/get-photo/777";
+            String link = fileService.generateLink(appPhoto.getId(), LinkType.GET_PHOTO);
+            var answer = "Фото успешно загружено! Ссылка для скачивания: " + link;
             sendAnswer(answer, chatId);
         } catch (UploadFileException e) {
             log.error(e.toString());
@@ -117,8 +118,8 @@ public class MainServiceImpl implements MainService {
 
         try{
             AppDocument doc = fileService.processDoc(update.getMessage());
-            // TODO Добавить генерацию ссылки для скачивания документа
-            var answer = "Документ успешно загружен! Ссылка для скачивания: http://test.ru/get-doc/777";
+            String link = fileService.generateLink(doc.getId(), LinkType.GET_DOC);
+            var answer = "Документ успешно загружен! Ссылка для скачивания: " + link;
             sendAnswer(answer, chatId);
         } catch (UploadFileException e){
             log.error(e.toString());
