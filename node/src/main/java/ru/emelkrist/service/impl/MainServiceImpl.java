@@ -1,4 +1,4 @@
-package ru.emelkrist.service.Impl;
+package ru.emelkrist.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,6 +12,7 @@ import ru.emelkrist.entity.AppPhoto;
 import ru.emelkrist.entity.AppUser;
 import ru.emelkrist.entity.RawData;
 import ru.emelkrist.exceptions.UploadFileException;
+import ru.emelkrist.service.AppUserService;
 import ru.emelkrist.service.FileService;
 import ru.emelkrist.service.MainService;
 import ru.emelkrist.service.ProducerService;
@@ -30,12 +31,14 @@ public class MainServiceImpl implements MainService {
     private final AppUserDAO appUserDAO;
     private final ProducerService producerService;
     private final FileService fileService;
+    private final AppUserService appUserService;
 
-    public MainServiceImpl(RawDataDAO rawDataDAO, AppUserDAO appUserDAO, ProducerService producerService, FileService fileService) {
+    public MainServiceImpl(RawDataDAO rawDataDAO, AppUserDAO appUserDAO, ProducerService producerService, FileService fileService, AppUserService appUserService) {
         this.rawDataDAO = rawDataDAO;
         this.appUserDAO = appUserDAO;
         this.producerService = producerService;
         this.fileService = fileService;
+        this.appUserService = appUserService;
     }
 
     @Override
@@ -50,9 +53,9 @@ public class MainServiceImpl implements MainService {
         if (CANCEL.equals(serviceCommand)) {
             output = cancelProcess(appUser);
         } else if (BASIC_STATE.equals(userState)) {
-            output = processUserCommand(appUser, text);
+            output = processServiceCommand(appUser, text);
         } else if (WAIT_TO_EMAIL_STATE.equals(userState)) {
-            //TODO добавить обработку почты
+            output = appUserService.setEmail(appUser, text);
         } else {
             log.error("Unknown user state: " + userState);
             output = "Неизвестная ошибка! Введите /cancel и попробуйте снова.";
@@ -147,13 +150,13 @@ public class MainServiceImpl implements MainService {
      * @param cmd команда
      * @return ответ на команду
      */
-    private String processUserCommand(AppUser appUser, String cmd) {
-        if (REGISTRATION.equals(cmd)) {
-            // TODO добавить регистрацию
-            return "Временно недоступно!";
-        } else if (HELP.equals(cmd)) {
+    private String processServiceCommand(AppUser appUser, String cmd) {
+        var serviceCommand = ServiceCommand.fromValue(cmd);
+        if (REGISTRATION.equals(serviceCommand)) {
+            return appUserService.registerUser(appUser);
+        } else if (HELP.equals(serviceCommand)) {
             return help();
-        } else if (START.equals(cmd)) {
+        } else if (START.equals(serviceCommand)) {
             return "Приветствую! Для просмотра доступных команд введите /help";
         } else {
             return "Неизвестная команда! Для просмотра доступных команд введите /help";
@@ -209,8 +212,7 @@ public class MainServiceImpl implements MainService {
                     .username(telegramUser.getUserName())
                     .firstName(telegramUser.getFirstName())
                     .lastName(telegramUser.getLastName())
-                    .isActive(true)
-                    // TODO после добавления регистрации изменить значение по умолчанию
+                    .isActive(false)
                     .state(BASIC_STATE)
                     .build();
             return appUserDAO.save(transientAppUser); // сохраняем в БД и возвращем нового пользователя

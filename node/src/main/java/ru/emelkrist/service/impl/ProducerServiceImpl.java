@@ -1,4 +1,4 @@
-package ru.emelkrist.service.Impl;
+package ru.emelkrist.service.impl;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;

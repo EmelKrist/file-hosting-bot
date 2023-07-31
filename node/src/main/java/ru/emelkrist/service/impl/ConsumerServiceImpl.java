@@ -1,4 +1,4 @@
-package ru.emelkrist.service.Impl;
+package ru.emelkrist.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
