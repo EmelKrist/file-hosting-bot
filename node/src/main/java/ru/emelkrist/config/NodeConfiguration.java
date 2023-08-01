@@ -9,8 +9,11 @@ import ru.emelkrist.utils.CryptoTool;
 public class NodeConfiguration {
 
     @Value("${salt}")
-    private String salt;
+    private String salt; // соль для шифрования
 
+    /**
+     * Бин для внедрения класса шифрования
+     */
     @Bean
     public CryptoTool getCryptoTool(){
         return new CryptoTool(salt);

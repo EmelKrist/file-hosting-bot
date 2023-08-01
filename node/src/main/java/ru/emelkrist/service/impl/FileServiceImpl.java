@@ -51,11 +51,11 @@ public class FileServiceImpl implements FileService {
     public AppDocument processDoc(Message telegramMessage) {
         Document telegramDoc = telegramMessage.getDocument();
         String fileId = telegramDoc.getFileId();
-        ResponseEntity<String> response = getFilePath(fileId);
-        if (response.getStatusCode() == HttpStatus.OK){
+        ResponseEntity<String> response = getFileInfo(fileId);
+        if (response.getStatusCode() == HttpStatus.OK) {
             BinaryContent persistentBinaryContent = getPersistentBinaryContent(response);
             AppDocument appDoc = buildTransientAppDoc(telegramDoc, persistentBinaryContent);
-            return appDocumentDAO.save(appDoc);
+            return appDocumentDAO.save(appDoc); // сохраняем построенный объект в БД (делаем persistent)
         } else {
             throw new UploadFileException("Bad response from telegram service: " + response);
         }
@@ -63,12 +63,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public AppPhoto processPhoto(Message telegramMessage) {
-        // исправлена проблема скачивания маленького некачественного фото (нужно брать посленднее по индексу фото)
+        // Для получения качественного фото, нужно брать посленднее по индексу фото
         var lastIndexPhoto = telegramMessage.getPhoto().size() - 1;
         PhotoSize telegramPhoto = telegramMessage.getPhoto().get(lastIndexPhoto);
         String fileId = telegramPhoto.getFileId();
-        ResponseEntity<String> response = getFilePath(fileId);
-        if (response.getStatusCode() == HttpStatus.OK){
+        ResponseEntity<String> response = getFileInfo(fileId);
+        if (response.getStatusCode() == HttpStatus.OK) {
             BinaryContent persistentBinaryContent = getPersistentBinaryContent(response);
             AppPhoto appPhoto = buildTransientAppPhoto(telegramPhoto, persistentBinaryContent);
             return appPhotoDAO.save(appPhoto);
@@ -83,6 +83,13 @@ public class FileServiceImpl implements FileService {
         return "http://" + linkAddress + "/" + linkType + "?id=" + hash;
     }
 
+    /**
+     * Метод для построения объекта фото (неотслеживаемого в БД)
+     *
+     * @param telegramPhoto           фото телеграма
+     * @param persistentBinaryContent двоичнй контент фото из связанной таблицы в БД
+     * @return объект фото приложения
+     */
     private AppPhoto buildTransientAppPhoto(PhotoSize telegramPhoto, BinaryContent persistentBinaryContent) {
         return AppPhoto.builder()
                 .telegramFileId(telegramPhoto.getFileId())
@@ -91,6 +98,13 @@ public class FileServiceImpl implements FileService {
                 .build();
     }
 
+    /**
+     * Метод для построения объекта дкумента (неотслеживаемого в БД)
+     *
+     * @param telegramDoc             документ телеграма
+     * @param persistentBinaryContent двоичнй контент документа из связанной таблицы в БД
+     * @return объект документа приложения
+     */
     private AppDocument buildTransientAppDoc(Document telegramDoc, BinaryContent persistentBinaryContent) {
         return AppDocument.builder()
                 .telegramFileId(telegramDoc.getFileId())
@@ -101,6 +115,15 @@ public class FileServiceImpl implements FileService {
                 .build();
     }
 
+    /**
+     * Метод для скачивания файла в бинарном формете и сохранения этих данных в БД
+     * Note: Получает путь файла, скачивает файл в виде потока байт,
+     * создает объект для хранения потока байт, который не отслеживается БД,
+     * после чего сохраняет его в ней, делая отслеживаемым (persistent)
+     *
+     * @param response ответ с информацией о файле
+     * @return объект хранения двоичного контента
+     */
     private BinaryContent getPersistentBinaryContent(ResponseEntity<String> response) {
         String filePath = getFilePath(response);
         byte[] fileInByte = downloadFile(filePath);
@@ -110,18 +133,25 @@ public class FileServiceImpl implements FileService {
         return binaryContentDAO.save(transientBinaryContent);
     }
 
+    /**
+     * Метод для скаивания файла из хранилища данных бота
+     * в виде потока байт
+     *
+     * @param filePath путь к файлу в хранилище
+     * @return массив байт файла
+     */
     private byte[] downloadFile(String filePath) {
         String fullUri = fileStorageUri.replace("{token}", token)
                 .replace("{filePath}", filePath);
 
         URL urlObj = null;
-        try {
+        try { // создаем URL по URI к файлу в харнилище бота
             urlObj = new URL(fullUri);
         } catch (MalformedURLException e) {
             throw new UploadFileException(e);
         }
-
-        try (InputStream is = urlObj.openStream()){
+        // в потоке для чтения получаем поток байт файла
+        try (InputStream is = urlObj.openStream()) {
             return is.readAllBytes();
         } catch (IOException e) {
             throw new UploadFileException(urlObj.toExternalForm(), e);
@@ -129,14 +159,27 @@ public class FileServiceImpl implements FileService {
 
     }
 
-    private String getFilePath(ResponseEntity<String> response){
+    /**
+     * Метод для получения(парсинга) пути файла в хранилище данных бота
+     * из json с информацией о файле
+     *
+     * @param response ответ с информацией о файле
+     * @return путь к файлу
+     */
+    private String getFilePath(ResponseEntity<String> response) {
         JSONObject jsonObject = new JSONObject(response.getBody());
         return String.valueOf(jsonObject
                 .getJSONObject("result")
                 .getString("file_path"));
     }
 
-    private ResponseEntity<String> getFilePath(String fileId) {
+    /**
+     * Метод для получения иформации о файле из телеграма
+     *
+     * @param fileId идентификатор файла
+     * @return json с информацией о файле
+     */
+    private ResponseEntity<String> getFileInfo(String fileId) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity request = new HttpEntity<>(headers);

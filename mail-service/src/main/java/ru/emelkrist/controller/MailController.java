@@ -14,6 +14,12 @@ public class MailController {
         this.mailSenderService = mailSenderService;
     }
 
+    /**
+     * Метод для обработки POST запроса на отправку сообщения для активации
+     * Note: Получает из тела запроса json с почтовыми параметрами пользователя (id и email)
+     * @param mailParams почтовые параметры
+     * @return ответ на запрос
+     */
     @PostMapping("/send")
     public ResponseEntity<?> sendActivationMail(@RequestBody MailParams mailParams){
         mailSenderService.send(mailParams);

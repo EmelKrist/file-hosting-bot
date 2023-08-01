@@ -14,6 +14,7 @@ public class MailSenderServiceImpl implements MailSenderService {
     private String emailFrom;
     @Value("${service.activation.uri}")
     private String activationServiceUri;
+
     public MailSenderServiceImpl(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
@@ -23,7 +24,7 @@ public class MailSenderServiceImpl implements MailSenderService {
         var subject = "Активация учетной записи.";
         var messageBody = getActivationMailBody(mailParams.getId());
         var emailTo = mailParams.getEmailTo();
-
+        // формируем и отправляем простое эл. сообщение
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setFrom(emailFrom);
         mailMessage.setTo(emailTo);
@@ -32,6 +33,12 @@ public class MailSenderServiceImpl implements MailSenderService {
 
         javaMailSender.send(mailMessage);
     }
+
+    /**
+     * Метод для формирования тела электронного сообщения
+     * @param id идентификатор пользователя (зашифрованный)
+     * @return текст тела эл. сообщения
+     */
     private String getActivationMailBody(String id) {
         var msg = String.format("Для завершения регистрации перейдите по ссылке: \n%s", activationServiceUri);
         return msg.replace("{id}", id);

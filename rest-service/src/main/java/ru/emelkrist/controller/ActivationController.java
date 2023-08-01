@@ -16,6 +16,13 @@ public class ActivationController {
         this.userActivationService = userActivationService;
     }
 
+    /**
+     * Метод для обработки GET запроса для активации пользователя
+     * Note: получает зашифрованный идентифаикатор пользоватеоля из параметров запроса
+     * и активирует данного пользователя
+     * @param id зашифрованный идентификатор пользователя
+     * @return сущность с ответом
+     */
     @GetMapping("/activation")
     public ResponseEntity<?> activation(@RequestParam("id") String id) {
         var res = userActivationService.activation(id);

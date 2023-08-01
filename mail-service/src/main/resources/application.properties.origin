@@ -9,4 +9,4 @@ spring.mail.password=
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
-service.activation.uri=http://127.0.0.1:8110/user/activation?id={id}
+service.activation.uri=http://127.0.0.1:8100/user/activation?id={id}

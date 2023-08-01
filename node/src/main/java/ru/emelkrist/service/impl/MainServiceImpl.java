@@ -90,7 +90,8 @@ public class MainServiceImpl implements MainService {
     /**
      * Метод для проверки возможности у пользователя
      * произведение загрузки контента
-     * @param chatId идентификатор чата
+     *
+     * @param chatId  идентификатор чата
      * @param appUser пользовтаель
      * @return true - запрет загрузки контента
      */
@@ -119,12 +120,12 @@ public class MainServiceImpl implements MainService {
             return;
         }
 
-        try{
+        try {
             AppDocument doc = fileService.processDoc(update.getMessage());
             String link = fileService.generateLink(doc.getId(), LinkType.GET_DOC);
             var answer = "Документ успешно загружен! Ссылка для скачивания: " + link;
             sendAnswer(answer, chatId);
-        } catch (UploadFileException e){
+        } catch (UploadFileException e) {
             log.error(e.toString());
             String error = "К сожалению, загрузка файла не удалась. Повторите попытку позже.";
             sendAnswer(error, chatId);
@@ -134,6 +135,7 @@ public class MainServiceImpl implements MainService {
 
     /**
      * Метод для формирования и отправки ответа в очередь ANSWER_MESSAGE
+     *
      * @param output ответ
      * @param chatId идентификатор чата
      */
@@ -146,8 +148,9 @@ public class MainServiceImpl implements MainService {
 
     /**
      * Метод для обработки тектовых команд пользователя
+     *
      * @param appUser пользователь
-     * @param cmd команда
+     * @param cmd     команда
      * @return ответ на команду
      */
     private String processServiceCommand(AppUser appUser, String cmd) {
@@ -165,6 +168,7 @@ public class MainServiceImpl implements MainService {
 
     /**
      * Метод для предоставления ответа на команду /help
+     *
      * @return ответ хелпера
      */
     private String help() {
@@ -175,6 +179,7 @@ public class MainServiceImpl implements MainService {
 
     /**
      * Метод для отмены текущей команды
+     *
      * @param appUser пользователь
      * @return строка подтверждения отмены команды
      */
@@ -188,6 +193,7 @@ public class MainServiceImpl implements MainService {
      * Метод для схранения в БД необработанных данных (сообщения, фото, документы)
      * Note: сохраняет поступающие от пользователя обновления, чтобы необработанные
      * данные в случае ошибки не были утеряны
+     *
      * @param update обновление чата
      */
     private void saveRawData(Update update) {
@@ -199,6 +205,7 @@ public class MainServiceImpl implements MainService {
 
     /**
      * Метод для поиска или добавления в БД пользователя из чата
+     *
      * @param update обновление чата
      * @return пользователя (найденный или сохраненный)
      */
