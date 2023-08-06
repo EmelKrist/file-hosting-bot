@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.emelkrist.entity.AppDocument;
 import ru.emelkrist.service.FileService;
 
+import java.io.FileNotFoundException;
+
 @RestController
 @RequestMapping("/file")
 @Slf4j
@@ -27,11 +29,10 @@ public class FileController {
      * @return сущность ответа
      */
     @GetMapping("/get-doc")
-    public ResponseEntity<?> getDoc(@RequestParam("id") String id) {
+    public ResponseEntity<?> getDoc(@RequestParam("id") String id) throws FileNotFoundException {
         var optionalAppDocument = fileService.getDocument(id);
         if (optionalAppDocument.isEmpty()) { // если документа нет в БД
-            // TODO Для формирования bad request добавить controllerAdvice
-            return ResponseEntity.badRequest().build();
+            throw new FileNotFoundException("Запрашиваемый документ не был найден!");
         }
         var doc = optionalAppDocument.get(); // получаем документ и двоичный контент
         var binaryContent = doc.getBinaryContent();
@@ -54,11 +55,10 @@ public class FileController {
      * @return сущность ответа
      */
     @GetMapping("/get-photo")
-    public ResponseEntity<?> getPhoto(@RequestParam("id") String id) {
+    public ResponseEntity<?> getPhoto(@RequestParam("id") String id) throws FileNotFoundException {
         var optionalAppPhoto = fileService.getPhoto(id);
         if (optionalAppPhoto.isEmpty()) { // если фото нет в БД
-            // TODO Для формирования bad request добавить controllerAdvice
-            return ResponseEntity.badRequest().build();
+            throw new FileNotFoundException("Запрашиваемое фото не было найден!");
         }
         var photo = optionalAppPhoto.get(); // получаем фото и двоичный контент
         var binaryContent = photo.getBinaryContent();
