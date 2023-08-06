@@ -42,7 +42,8 @@ public class FileController {
         } // если ресурс получен, отправляем его в ответ для скачивания документа в браузере
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(doc.getMimeType()))
-                .header("Content-disposition", "attachment; filename=" + doc.getDocName())
+                .header("Content-disposition", "attachment; " +
+                        "filename=" + id + "." + doc.getMimeType().split("/")[1])
                 .body(fileSystemResource);
     }
 
@@ -68,7 +69,7 @@ public class FileController {
         } // если ресурс получен, отправляем его в ответ для скачивания фото в браузере
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .header("Content-disposition", "attachment;")
+                .header("Content-disposition", "attachment; filename=" + id + ".jpg")
                 .body(fileSystemResource);
     }
 }

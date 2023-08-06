@@ -15,6 +15,7 @@ import ru.emelkrist.utils.CryptoTool;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -46,8 +47,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public FileSystemResource getFileSystemResource(BinaryContent binaryContent) {
         try {
-            // TODO добавить генерацию имени временного файла
-            File temp = File.createTempFile("tempFile", ".bin");
+            String tempFilename = UUID.randomUUID().toString();
+            File temp = File.createTempFile(tempFilename, ".bin");
             temp.deleteOnExit();
             FileUtils.writeByteArrayToFile(temp, binaryContent.getFileAsArrayOfBytes());
             return new FileSystemResource(temp);
