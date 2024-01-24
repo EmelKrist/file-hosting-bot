@@ -40,9 +40,10 @@ ____
 ### Результаты.
 Здесь представлены примеры работы функций регистрации пользователя, а также генерации ссылки для скачивания фото и документов.
 #### Генерация ссылки для скачивания документа.
-![result_1](https://github.com/EmelKrist/railway-assistance-bot/blob/master/doc_example.png)
+![result_1](https://github.com/EmelKrist/file-hosting-bot/blob/master/doc_example.png)
 #### Генерация ссылки для скачивания фото.
-![result_2](https://github.com/EmelKrist/railway-assistance-bot/blob/master/photo_example.png)
+![result_2](https://github.com/EmelKrist/file-hosting-bot/blob/master/photo_example.png)
 #### Регистрация пользователя.
-![result_3](https://github.com/EmelKrist/railway-assistance-bot/blob/master/registration_example.png)
+![result_3](https://github.com/EmelKrist/file-hosting-bot/blob/master/registration_example.png)
+
 
