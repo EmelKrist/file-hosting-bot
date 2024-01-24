@@ -33,7 +33,16 @@ ____
 ```javascript
 /start - команда для начала работы с ботом; 
 /help - команда для получения информации о работе с ботом;
-/register - команда для регистрации пользователя в системе;
+/registration - команда для регистрации пользователя в системе;
 /cancel - команда для отмены ныне выполняюмой команды.
 ```
 ____
+### Результаты.
+Здесь представлены примеры работы функций регистрации пользователя, а также генерации ссылки для скачивания фото и документов.
+#### Генерация ссылки для скачивания документа.
+![result_1](https://github.com/EmelKrist/railway-assistance-bot/blob/master/doc_example.png)
+#### Генерация ссылки для скачивания фото.
+![result_2](https://github.com/EmelKrist/railway-assistance-bot/blob/master/photo_example.png)
+#### Регистрация пользователя.
+![result_3](https://github.com/EmelKrist/railway-assistance-bot/blob/master/registration_example.png)
+
